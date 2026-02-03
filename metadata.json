@@ -1,0 +1,8 @@
+
+{
+  "name": "LeadStream AI",
+  "description": "An automated business outreach dashboard that uses Gemini to find leads via Google Maps and facilitates calling through Zoom protocol handlers.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
