@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { discoverLeads } from './services/gemini';
+import { discoverLeads } from './Services/gemini';
 import { BusinessLead, SearchResult } from './types';
 import { 
   PhoneIcon, 
