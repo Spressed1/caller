@@ -52,6 +52,13 @@ export function toLocal(z: Zone, x: number, y: number): { x: number; y: number }
   return { x: dx * c + dy * s, y: -dx * s + dy * c };
 }
 
+/** Zone-local point → screen point (inverse of toLocal). */
+export function toWorld(z: Zone, lx: number, ly: number): { x: number; y: number } {
+  const c = Math.cos(z.angle);
+  const s = Math.sin(z.angle);
+  return { x: z.cx + lx * c - ly * s, y: z.cy + lx * s + ly * c };
+}
+
 export function withZone(g: CanvasRenderingContext2D, z: Zone, fn: () => void): void {
   g.save();
   g.translate(z.cx, z.cy);

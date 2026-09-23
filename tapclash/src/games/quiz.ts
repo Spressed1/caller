@@ -8,8 +8,8 @@ import { scoreRanking, type GameContext, type GameModule } from './types';
 const TARGET = 5;
 
 export interface Question {
-  /** Draws the prompt centred at (0, 0) in zone-local space. */
-  prompt(g: CanvasRenderingContext2D, w: number, h: number): void;
+  /** Draws the prompt centred at (0, 0) in zone-local space; t = seconds since the question appeared. */
+  prompt(g: CanvasRenderingContext2D, w: number, h: number, t: number): void;
   options: string[];
   correct: number;
 }
@@ -20,7 +20,7 @@ type OptionStyle = 'color' | 'text';
  * Shared "first correct answer scores" round logic. Every player gets the same
  * question but with their own shuffled buttons, so no one can copy.
  */
-function createQuiz(make: (round: number) => Question, style: OptionStyle): GameModule {
+export function createQuiz(make: (round: number) => Question, style: OptionStyle): GameModule {
   let c: GameContext;
   let q: Question;
   let order: number[][] = [];
@@ -30,6 +30,7 @@ function createQuiz(make: (round: number) => Question, style: OptionStyle): Game
   let reveal = 0;
   let round = 0;
   let pop = 0;
+  let qt = 0;
   let done: number[] | null = null;
 
   const next = () => {
@@ -39,6 +40,7 @@ function createQuiz(make: (round: number) => Question, style: OptionStyle): Game
     winner = -1;
     reveal = 0;
     pop = 0;
+    qt = 0;
   };
 
   const layout = (z: Zone) => {
@@ -91,6 +93,7 @@ function createQuiz(make: (round: number) => Question, style: OptionStyle): Game
     },
     update(dt) {
       pop = Math.min(1, pop + dt * 5);
+      qt += dt;
       if (reveal > 0) {
         reveal += dt;
         if (reveal > 1.1) {
@@ -115,7 +118,7 @@ function createQuiz(make: (round: number) => Question, style: OptionStyle): Game
           g.translate(0, -z.h * 0.2);
           const s = 0.7 + 0.3 * pop;
           g.scale(s, s);
-          q.prompt(g, z.w, z.h);
+          q.prompt(g, z.w, z.h, qt);
           g.restore();
 
           const { bw, bh, gap, top } = layout(z);
@@ -165,7 +168,7 @@ function createQuiz(make: (round: number) => Question, style: OptionStyle): Game
   };
 }
 
-const COLORS: [string, string][] = [
+export const COLORS: [string, string][] = [
   ['RED', '#EF4444'],
   ['BLUE', '#3B82F6'],
   ['GREEN', '#22C55E'],

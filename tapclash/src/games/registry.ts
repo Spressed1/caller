@@ -1,4 +1,10 @@
+import { createBomb } from './bomb';
+import { createQuickCount } from './count';
+import { createMemory } from './memory';
+import { createNerve } from './nerve';
+import { createPaint } from './paint';
 import { createColorCall, createMathDuel } from './quiz';
+import { createTug } from './tug';
 import { createPong } from './pong';
 import { createReflex } from './reflex';
 import { createSnake } from './snake';
@@ -82,6 +88,60 @@ export const GAMES: GameDef[] = [
     accent: '#FB923C',
     icon: svg('<rect x="8" y="20" width="24" height="16" rx="4"/><circle cx="20" cy="28" r="4"/><path d="M24 28h17"/><path d="M8 20h24M8 36h24" opacity=".55"/>'),
     create: createTanks,
+  },
+  {
+    id: 'bomb',
+    name: 'Bomb Pass',
+    tagline: "Don't be holding it",
+    howTo: 'Holding the bomb? Tap it 3 times to throw it to someone else. The fuse is hidden, so listen to the ticking. If it blows up on you, you are out.',
+    accent: '#F97316',
+    icon: svg('<circle cx="21" cy="28" r="14"/><path d="M29 15l4-4"/><path d="M36 6l1 3M41 10l-3 1M40 4l-2 3" opacity=".7"/>'),
+    create: createBomb,
+  },
+  {
+    id: 'nerve',
+    name: 'Hold Your Nerve',
+    tagline: 'Let go before it crashes',
+    howTo: 'Hold a finger down while the multiplier climbs. Let go to bank it. Still holding when it crashes? You get nothing. Best total after 3 rounds.',
+    accent: '#FB7185',
+    icon: svg('<path d="M6 40 18 30l7 5 17-25"/><path d="M34 10h8v8"/>'),
+    create: createNerve,
+  },
+  {
+    id: 'paint',
+    name: 'Paint Wars',
+    tagline: 'Cover the floor',
+    howTo: 'Drag to roll your brush and paint the floor. Paint over rivals, grab the star for a big splash. Most floor after 30 seconds wins.',
+    accent: '#E879F9',
+    icon: svg('<path d="M10 38c6 0 8-4 8-8a5 5 0 0 1 10 0c0 4-4 8-8 8"/><path d="M26 22 40 8"/><circle cx="12" cy="14" r="3" fill="currentColor"/><circle cx="36" cy="34" r="3" fill="currentColor"/>'),
+    create: createPaint,
+  },
+  {
+    id: 'memory',
+    name: 'Memory Echo',
+    tagline: 'Repeat the pattern',
+    howTo: 'Watch the pads light up, then tap the same pattern. First to get it right scores, and the pattern gets longer. One mistake locks you out of the round. First to 3.',
+    accent: '#34D399',
+    icon: svg('<path d="M24 6a18 18 0 0 1 18 18H24z"/><path d="M42 24a18 18 0 0 1-18 18V24z" opacity=".55"/><path d="M24 42A18 18 0 0 1 6 24h18z"/><path d="M6 24A18 18 0 0 1 24 6v18z" opacity=".55"/>'),
+    create: createMemory,
+  },
+  {
+    id: 'tug',
+    name: 'Tug Knot',
+    tagline: 'Everyone pulls at once',
+    howTo: 'Every tap yanks the knot towards your goal while everyone else pulls their way. Drag the knot into your circle to win.',
+    accent: '#FACC15',
+    icon: svg('<circle cx="24" cy="24" r="4" fill="currentColor"/><path d="M24 20V6M24 28v14M20 24H6M28 24h14" opacity=".8"/><circle cx="24" cy="6" r="3"/><circle cx="24" cy="42" r="3"/><circle cx="6" cy="24" r="3"/><circle cx="42" cy="24" r="3"/>'),
+    create: createTug,
+  },
+  {
+    id: 'count',
+    name: 'Quick Count',
+    tagline: 'Two seconds to count',
+    howTo: 'Dots flash up for two seconds. Count the colour you are shown, then tap the right number. A wrong tap locks you out of the round. First to 5.',
+    accent: '#60A5FA',
+    icon: svg('<circle cx="14" cy="14" r="4" fill="currentColor"/><circle cx="32" cy="12" r="4"/><circle cx="24" cy="26" r="4" fill="currentColor"/><circle cx="12" cy="36" r="4"/><circle cx="36" cy="34" r="4" fill="currentColor"/>'),
+    create: createQuickCount,
   },
 ];
 

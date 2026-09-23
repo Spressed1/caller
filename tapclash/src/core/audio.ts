@@ -69,6 +69,10 @@ class Sfx {
   bump(v = 1): void { this.tone(160 + 80 * v, 0.1, 'sine', 0.2 * Math.min(1, v), 70); }
   shoot(): void { this.noise(0.06, 0.06, 5000); this.tone(700, 0.05, 'square', 0.03, 350); }
   boom(): void { this.noise(0.5, 0.35, 1400); this.tone(120, 0.4, 'sine', 0.3, 40); }
+  tick(): void { this.tone(1400, 0.03, 'square', 0.05); }
+  /** One of four pad notes (Memory Echo). */
+  note(i: number): void { this.tone([330, 415, 494, 587][i % 4], 0.3, 'triangle', 0.18); }
+  pump(v: number): void { this.tone(200 + v * 60, 0.05, 'sine', 0.06); }
   win(): void {
     [523, 659, 784, 1047].forEach((f, i) => this.tone(f, 0.22, 'triangle', 0.14, undefined, i * 0.1));
     this.tone(1047, 0.6, 'sine', 0.1, undefined, 0.4);

@@ -23,6 +23,12 @@ npm run build    # static build in dist/, deploy anywhere (installable PWA)
 | Color Call | Tap the colour the word names, not its ink. First to 5 |
 | Math Duel | First correct answer scores. First to 5 |
 | Tank Brawl | Drag to drive, auto-fire, bullets bounce once; 3 HP |
+| Bomb Pass | Hot potato: tap the bomb 3 times to throw it on; the fuse is hidden |
+| Hold Your Nerve | Hold while the multiplier climbs, let go to bank it before it crashes; 3 rounds |
+| Paint Wars | Roll your brush and paint the floor; grab stars for splashes; most coverage in 30s |
+| Memory Echo | Repeat the flashing pad sequence first; it grows each point. First to 3 |
+| Tug Knot | Every tap pulls the knot towards your goal; drag it in to win |
+| Quick Count | Dots flash for 2s: count the shown colour and pick the number. First to 5 |
 
 Modes: **Quick Play** (pick a game, rematch) and **Tournament** (random games, first to 5 wins).
 
