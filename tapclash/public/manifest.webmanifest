@@ -1,0 +1,14 @@
+{
+  "name": "TapClash",
+  "short_name": "TapClash",
+  "description": "Party mini-games for 2, 3 or 4 players on one phone.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#0B0B14",
+  "theme_color": "#0B0B14",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
