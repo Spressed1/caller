@@ -1,8 +1,9 @@
 import { sfx } from '../core/audio';
 import { buzz } from '../core/haptics';
+import { critter } from '../core/assets';
 import { rgba, text } from '../core/draw';
 import { withZone } from '../core/zones';
-import { PLAYER_COLORS } from '../theme';
+import { INK, PLAYER_COLORS } from '../theme';
 import { edgeTag } from './hud';
 import type { GameContext, GameModule } from './types';
 
@@ -93,7 +94,7 @@ export function createTug(): GameModule {
         g.fillStyle = grad;
         g.fillRect(z.x, z.y, z.w, z.h);
       }
-      // Ropes
+      // Ropes: ink outline under a dashed coloured core that crawls as you pull.
       g.save();
       g.lineCap = 'round';
       goals.forEach((gl, p) => {
@@ -104,48 +105,56 @@ export function createTug(): GameModule {
         const my = (gl.y + ky) / 2;
         const nx = -(gl.y - ky) / (d || 1);
         const ny = (gl.x - kx) / (d || 1);
-        g.strokeStyle = col;
-        g.shadowColor = col;
-        g.shadowBlur = 10 + yank[p] * 20;
-        g.lineWidth = 5 + yank[p] * 3;
-        g.setLineDash([12, 7]);
-        g.lineDashOffset = -t * 30;
         g.beginPath();
         g.moveTo(kx, ky);
         g.quadraticCurveTo(mx + nx * sag, my + ny * sag, gl.x, gl.y);
+        g.strokeStyle = INK;
+        g.lineWidth = 11 + yank[p] * 3;
         g.stroke();
+        g.strokeStyle = col;
+        g.lineWidth = 6 + yank[p] * 3;
+        g.setLineDash([10, 6]);
+        g.lineDashOffset = -t * 30;
+        g.stroke();
+        g.setLineDash([]);
       });
       g.restore();
-      // Goals
+      // Goals, each guarded by its critter leaning back on the rope.
       goals.forEach((gl, p) => {
         const col = PLAYER_COLORS[p];
         const pulse = 1 + Math.sin(t * 4 + p) * 0.05;
         g.save();
-        g.strokeStyle = col;
-        g.shadowColor = col;
-        g.shadowBlur = p === near ? 30 : 12;
-        g.lineWidth = 4;
         g.beginPath();
         g.arc(gl.x, gl.y, goalR * pulse, 0, Math.PI * 2);
-        g.stroke();
-        g.fillStyle = rgba(col, 0.15);
+        g.fillStyle = rgba(col, 0.3);
         g.fill();
+        g.strokeStyle = INK;
+        g.lineWidth = 3;
+        g.setLineDash([7, 6]);
+        g.stroke();
         g.restore();
+        const dist = Math.hypot(gl.x - kx, gl.y - ky) || 1;
+        const bx = gl.x + ((gl.x - kx) / dist) * goalR * 0.7;
+        const by = gl.y + ((gl.y - ky) / dist) * goalR * 0.7;
+        const mood = dist < c.S * 0.3 ? 'happy' : p !== near ? 'worried' : 'idle';
+        critter(g, p, bx, by, goalR * 1.9, mood, c.zones[p].angle + yank[p] * 0.2, 1 + yank[p] * 0.2);
       });
       // Knot
       g.save();
       g.fillStyle = '#fff';
-      g.shadowColor = '#fff';
-      g.shadowBlur = 26;
+      g.strokeStyle = INK;
+      g.lineWidth = 4;
       g.beginPath();
-      g.arc(kx, ky, c.S * 0.04, 0, Math.PI * 2);
+      g.arc(kx, ky, c.S * 0.045, 0, Math.PI * 2);
       g.fill();
+      g.stroke();
       g.restore();
 
       for (const z of c.zones) {
         withZone(g, z, () => {
           const left = Math.max(0, Math.ceil(TIME_LIMIT - t));
-          text(g, t < 3 ? 'TAP TO PULL!' : `${left}s`, 0, z.h / 2 - 58, t < 3 ? 16 : 14, 'rgba(255,255,255,0.7)', { weight: 900 });
+          if (t < 3) text(g, 'TAP TO PULL!', 0, -z.h * 0.22, 20, '#FFFFFF', { weight: 900, glow: 1, alpha: Math.min(1, 3 - t) });
+          text(g, `${left}s`, z.w / 2 - 24, -z.h / 2 + 22, 14, 'rgba(34,25,43,0.55)', { weight: 900 });
         });
         edgeTag(g, z);
       }

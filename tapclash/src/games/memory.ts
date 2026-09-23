@@ -1,8 +1,9 @@
 import { sfx } from '../core/audio';
 import { buzz } from '../core/haptics';
-import { pips, rgba, roundRect, text } from '../core/draw';
+import { pips, rgba, roundRect, text, tint } from '../core/draw';
 import { toLocal, withZone, type Zone } from '../core/zones';
-import { DANGER, PLAYER_COLORS } from '../theme';
+import { critter } from '../core/assets';
+import { DANGER, INK, PLAYER_COLORS } from '../theme';
 import { scoreRanking, type GameContext, type GameModule } from './types';
 
 const TARGET = 3;
@@ -131,11 +132,13 @@ export function createMemory(): GameModule {
       for (const z of c.zones) {
         const p = z.player;
         const col = PLAYER_COLORS[p];
-        g.fillStyle = winner === p && state === 'reveal' ? rgba(col, 0.3) : '#0f0f1b';
+        g.fillStyle = tint(col, winner === p && state === 'reveal' ? 0.5 : 0.84);
         g.fillRect(z.x, z.y, z.w, z.h);
         withZone(g, z, () => {
           const m = Math.min(z.w, z.h);
           pips(g, 0, -z.h / 2 + 22, TARGET, score[p], col, 5);
+          const mood = locked[p] ? 'ko' : state === 'reveal' ? (winner === p ? 'win' : 'worried') : state === 'show' ? 'idle' : 'happy';
+          critter(g, p, -z.w / 2 + 26, -z.h / 2 + 26, 40, mood);
           const hy = -z.h * 0.3;
           if (state === 'show') text(g, 'WATCH…', 0, hy, m * 0.11, '#fff', { weight: 900 });
           else if (state === 'input') {
@@ -145,29 +148,25 @@ export function createMemory(): GameModule {
               pips(g, 0, hy + m * 0.07, seq.length, progress[p], '#fff', 4);
             }
           } else if (winner === p) text(g, '+1', 0, hy, m * 0.16, '#fff', { weight: 900, glow: 24 });
-          else if (winner >= 0) text(g, 'TOO SLOW', 0, hy, m * 0.08, 'rgba(255,255,255,0.5)', { weight: 900 });
-          else text(g, 'NO POINT', 0, hy, m * 0.08, 'rgba(255,255,255,0.5)', { weight: 900 });
+          else if (winner >= 0) text(g, 'TOO SLOW', 0, hy, m * 0.08, 'rgba(34,25,43,0.5)', { weight: 900 });
+          else text(g, 'NO POINT', 0, hy, m * 0.08, 'rgba(34,25,43,0.5)', { weight: 900 });
 
           for (let i = 0; i < 4; i++) {
             const r = padRect(z, i);
             const lit = flash[p][i] > 0;
             g.save();
-            roundRect(g, r.x, r.y, r.w, r.h, 18);
-            g.fillStyle = lit ? PADS[i] : rgba(PADS[i], locked[p] ? 0.1 : 0.22);
-            if (lit) {
-              g.shadowColor = PADS[i];
-              g.shadowBlur = 30;
-            }
+            roundRect(g, r.x, r.y + (lit ? 3 : 0), r.w, r.h, 18);
+            g.fillStyle = lit ? PADS[i] : rgba(PADS[i], locked[p] ? 0.18 : 0.4);
             g.fill();
-            g.strokeStyle = rgba(PADS[i], lit ? 1 : 0.5);
-            g.lineWidth = 2;
+            g.strokeStyle = INK;
+            g.lineWidth = lit ? 5 : 3;
             g.stroke();
             g.restore();
           }
-          text(g, `${seq.length} steps`, 0, z.h / 2 - 20, 12, 'rgba(255,255,255,0.4)', { weight: 700 });
+          text(g, `${seq.length} steps`, 0, z.h / 2 - 20, 12, 'rgba(34,25,43,0.4)', { weight: 700 });
         });
       }
-      g.strokeStyle = 'rgba(0,0,0,0.6)';
+      g.strokeStyle = INK;
       g.lineWidth = 3;
       for (const z of c.zones) g.strokeRect(z.x, z.y, z.w, z.h);
     },

@@ -2,7 +2,7 @@ import { sfx } from '../core/audio';
 import { buzz } from '../core/haptics';
 import { easeOutCubic, pips, rand, rgba, text } from '../core/draw';
 import { toLocal, toWorld, withZone } from '../core/zones';
-import { DANGER, PLAYER_COLORS } from '../theme';
+import { DANGER, INK, PAPER, PLAYER_COLORS, inkA } from '../theme';
 import { edgeTag } from './hud';
 import { eliminationRanking, type GameContext, type GameModule } from './types';
 
@@ -118,10 +118,13 @@ export function createBomb(): GameModule {
       const danger = 1 - fuse / fuseMax;
       for (const z of c.zones) {
         const p = z.player;
-        const col = PLAYER_COLORS[p];
         const holding = p === holder && !flight && respawn <= 0;
-        g.fillStyle = !alive[p] ? '#08080e' : holding ? `rgba(${60 + danger * 90},12,24,1)` : '#0f0f1b';
+        g.fillStyle = !alive[p] ? '#E4D6C0' : PAPER;
         g.fillRect(z.x, z.y, z.w, z.h);
+        if (holding) {
+          g.fillStyle = `rgba(255,59,92,${0.18 + danger * 0.45})`;
+          g.fillRect(z.x, z.y, z.w, z.h);
+        }
         withZone(g, z, () => {
           const m = Math.min(z.w, z.h);
           if (!alive[p]) {
@@ -130,12 +133,12 @@ export function createBomb(): GameModule {
             text(g, 'TAP THE BOMB!', 0, -z.h / 2 + 40, m * 0.075, '#fff', { weight: 900, maxWidth: z.w * 0.9 });
             pips(g, 0, -z.h / 2 + 66, TAPS, taps, '#fff', 6);
           } else {
-            text(g, 'SAFE… FOR NOW', 0, 0, m * 0.07, rgba(col, 0.6), { weight: 800, maxWidth: z.w * 0.9 });
+            text(g, 'safe… for now', 0, 0, m * 0.07, inkA(0.55), { weight: 700, maxWidth: z.w * 0.9 });
           }
         });
-        edgeTag(g, z, { out: !alive[p] });
+        edgeTag(g, z, { out: !alive[p], mood: holding ? 'worried' : undefined });
       }
-      g.strokeStyle = 'rgba(0,0,0,0.6)';
+      g.strokeStyle = INK;
       g.lineWidth = 3;
       for (const z of c.zones) g.strokeRect(z.x, z.y, z.w, z.h);
 
@@ -158,17 +161,17 @@ export function createBomb(): GameModule {
 function drawBomb(g: CanvasRenderingContext2D, x: number, y: number, r: number, danger: number): void {
   g.save();
   g.translate(x, y);
-  g.shadowColor = `rgba(248,113,113,${0.3 + danger * 0.7})`;
-  g.shadowBlur = 20 + danger * 30;
   const grad = g.createRadialGradient(-r * 0.35, -r * 0.35, r * 0.1, 0, 0, r);
   grad.addColorStop(0, '#5b5b73');
   grad.addColorStop(0.5, '#23232f');
-  grad.addColorStop(1, '#0c0c12');
+  grad.addColorStop(1, '#1a1a24');
   g.fillStyle = grad;
   g.beginPath();
   g.arc(0, 0, r, 0, Math.PI * 2);
   g.fill();
-  g.shadowBlur = 0;
+  g.strokeStyle = INK;
+  g.lineWidth = 3;
+  g.stroke();
   g.fillStyle = '#3a3a4a';
   g.fillRect(-r * 0.22, -r * 1.12, r * 0.44, r * 0.26);
   g.strokeStyle = '#d6b88a';
@@ -178,8 +181,6 @@ function drawBomb(g: CanvasRenderingContext2D, x: number, y: number, r: number, 
   g.quadraticCurveTo(r * 0.2, -r * 1.45, r * 0.5, -r * 0.95);
   g.stroke();
   g.fillStyle = '#FDE68A';
-  g.shadowColor = '#F97316';
-  g.shadowBlur = 16;
   g.beginPath();
   g.arc(r * 0.5, -r * 0.95, 4 + Math.random() * 3, 0, Math.PI * 2);
   g.fill();

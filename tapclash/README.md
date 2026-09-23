@@ -3,6 +3,10 @@
 Party mini-games for 2, 3 or 4 players on **one phone lying flat on a table**.
 Each player owns one side of the screen, and every player's text faces them.
 
+Each seat is a mascot with its own shape and colour: **Bonk** (tomato), **Blip** (robot),
+**Zest** (lemon drop) and **Moss** (gumdrop). The shapes differ, so players stay
+distinguishable without relying on colour.
+
 ## Run
 
 ```bash
@@ -15,6 +19,9 @@ npm run build    # static build in dist/, deploy anywhere (installable PWA)
 
 | Game | Goal |
 |---|---|
+| Chomp Chomp | Tap where you want to lunge and eat candy; gold is worth 3 |
+| Stack Attack | Drop sliding blocks; overhang is chopped; perfect drops streak and regrow |
+| Whack-a-Mole | Same moles for everyone at the same moment: whack moles, grab gold, skip bombs |
 | Tap Rush | First to 50 taps |
 | Reflex | Tap on green; tapping early costs you the round. First to 3 |
 | Sumo Ring | Push the others off a shrinking ring. Drag to roll, tap to dash |
@@ -44,4 +51,19 @@ Adding a game: implement `GameModule` (`init`, `update`, `render`, touch handler
 `result()` returning players best → worst) and register it in `games/registry.ts`.
 The session handles ready checks, countdown, touch → player routing and results.
 
-No runtime dependencies: Canvas 2D for rendering, WebAudio for generated sound effects.
+## Art
+
+Hand-authored SVG in `public/assets/`:
+
+- `critters/*.svg`: the four mascot bodies
+- `faces/*.svg`: shared expressions (idle, happy, worried, ko, win) layered on any body
+- `icons/*.svg`: one illustrated icon per game
+
+In game, `core/assets.ts` rasterises each body+face+size combination once into a cached
+bitmap, because drawing SVG every frame is slow on mobile Safari. Style rules: cream
+paper background, 3px ink (`#22192B`) outlines, flat fills, hard drop shadows, and no
+gradients or glow. Fonts are Lilita One (display) and Fredoka (body), bundled through
+`@fontsource` so they also work offline.
+
+Rendering uses Canvas 2D and sound effects are generated with WebAudio. The only
+runtime dependencies are the two font packages.

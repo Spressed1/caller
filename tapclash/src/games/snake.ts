@@ -1,7 +1,8 @@
 import { sfx } from '../core/audio';
 import { buzz } from '../core/haptics';
+import { critter } from '../core/assets';
 import { rgba } from '../core/draw';
-import { PLAYER_COLORS } from '../theme';
+import { INK, PLAYER_COLORS } from '../theme';
 import { edgeTag, zoneTints } from './hud';
 import { eliminationRanking, type GameContext, type GameModule } from './types';
 
@@ -143,9 +144,9 @@ export function createSnake(): GameModule {
     },
     render(g) {
       zoneTints(g, c.zones, 0.035);
-      g.fillStyle = '#0e0e1a';
+      g.fillStyle = '#FFF8EC';
       g.fillRect(ox, oy, cols * cell, rows * cell);
-      g.strokeStyle = 'rgba(255,255,255,0.035)';
+      g.strokeStyle = 'rgba(34,25,43,0.07)';
       g.lineWidth = 1;
       g.beginPath();
       for (let i = 0; i <= cols; i++) {
@@ -157,27 +158,22 @@ export function createSnake(): GameModule {
         g.lineTo(ox + cols * cell, oy + j * cell);
       }
       g.stroke();
-      g.strokeStyle = 'rgba(192,132,252,0.6)';
-      g.lineWidth = 2;
+      g.strokeStyle = INK;
+      g.lineWidth = 3;
       g.strokeRect(ox, oy, cols * cell, rows * cell);
 
       cycles.forEach((cy, p) => {
         const col = PLAYER_COLORS[p];
-        g.fillStyle = cy.alive ? rgba(col, 0.55) : rgba(col, 0.16);
+        g.fillStyle = cy.alive ? col : rgba(col, 0.25);
         const pad = cell * 0.12;
         for (const k of cy.trail) {
           const x = k % cols;
           const y = (k / cols) | 0;
           g.fillRect(ox + x * cell + pad, oy + y * cell + pad, cell - pad * 2, cell - pad * 2);
         }
-        if (cy.alive) {
-          g.save();
-          g.fillStyle = '#fff';
-          g.shadowColor = col;
-          g.shadowBlur = 20;
-          g.fillRect(ox + cy.x * cell + 1, oy + cy.y * cell + 1, cell - 2, cell - 2);
-          g.restore();
-        }
+        const hx = ox + (cy.x + 0.5) * cell;
+        const hy = oy + (cy.y + 0.5) * cell;
+        critter(g, p, hx, hy, cell * 2.2, cy.alive ? 'idle' : 'ko', cy.alive ? [0, Math.PI / 2, Math.PI, -Math.PI / 2][cy.dir] : 0.4);
       });
       for (const z of c.zones) edgeTag(g, z, { out: !cycles[z.player].alive });
     },

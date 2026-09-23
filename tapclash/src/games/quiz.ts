@@ -1,8 +1,9 @@
 import { sfx } from '../core/audio';
 import { buzz } from '../core/haptics';
-import { pips, rand, rgba, roundRect, shuffle, text } from '../core/draw';
+import { pips, rand, roundRect, shuffle, text, tint } from '../core/draw';
 import { toLocal, withZone, type Zone } from '../core/zones';
-import { DANGER, PLAYER_COLORS } from '../theme';
+import { critter } from '../core/assets';
+import { DANGER, INK, PAPER, PLAYER_COLORS } from '../theme';
 import { scoreRanking, type GameContext, type GameModule } from './types';
 
 const TARGET = 5;
@@ -107,13 +108,15 @@ export function createQuiz(make: (round: number) => Question, style: OptionStyle
         const p = z.player;
         const col = PLAYER_COLORS[p];
         const grad = g.createLinearGradient(z.cx, z.cy, z.cx, z.cy + (Math.cos(z.angle) * z.h) / 2);
-        grad.addColorStop(0, '#0f0f1b');
-        grad.addColorStop(1, rgba(col, winner === p ? 0.35 : 0.12));
+        grad.addColorStop(0, PAPER);
+        grad.addColorStop(1, tint(col, winner === p ? 0.45 : 0.72));
         g.fillStyle = grad;
         g.fillRect(z.x, z.y, z.w, z.h);
         withZone(g, z, () => {
           const hh = z.h / 2;
           pips(g, 0, -hh + 22, TARGET, score[p], col, 5);
+          const mood = reveal > 0 ? (winner === p ? 'win' : 'worried') : locked[p] ? 'ko' : 'idle';
+          critter(g, p, -z.w / 2 + 26, -hh + 26, 40, mood);
           g.save();
           g.translate(0, -z.h * 0.2);
           const s = 0.7 + 0.3 * pop;
@@ -131,23 +134,22 @@ export function createQuiz(make: (round: number) => Question, style: OptionStyle
             g.save();
             g.globalAlpha = dim ? 0.3 : 1;
             roundRect(g, x0, y0, bw, bh, 16);
+            g.strokeStyle = INK;
+            g.lineWidth = 3;
             if (style === 'color') {
               g.fillStyle = q.options[opt];
               g.fill();
-            } else {
-              g.fillStyle = 'rgba(255,255,255,0.07)';
-              g.fill();
-              g.strokeStyle = rgba(col, 0.6);
-              g.lineWidth = 2;
               g.stroke();
-              text(g, q.options[opt], x0 + bw / 2, y0 + bh / 2 + 1, bh * 0.42, '#fff', { weight: 800, maxWidth: bw * 0.85 });
+            } else {
+              g.fillStyle = '#FFFFFF';
+              g.fill();
+              g.stroke();
+              text(g, q.options[opt], x0 + bw / 2, y0 + bh / 2 + 1, bh * 0.46, INK, { weight: 900, maxWidth: bw * 0.85 });
             }
             if (reveal > 0 && isCorrect) {
               g.globalAlpha = 1;
-              g.strokeStyle = '#fff';
-              g.shadowColor = '#fff';
-              g.shadowBlur = 16;
-              g.lineWidth = 4;
+              g.strokeStyle = INK;
+              g.lineWidth = 7;
               g.stroke();
             }
             g.restore();
@@ -160,7 +162,7 @@ export function createQuiz(make: (round: number) => Question, style: OptionStyle
           }
         });
       }
-      g.strokeStyle = 'rgba(0,0,0,0.6)';
+      g.strokeStyle = INK;
       g.lineWidth = 3;
       for (const z of c.zones) g.strokeRect(z.x, z.y, z.w, z.h);
     },
@@ -186,7 +188,7 @@ export function createColorCall(): GameModule {
     return {
       prompt(g, w, h) {
         text(g, COLORS[word][0], 0, 0, Math.min(w, h) * 0.2, COLORS[ink][1], { weight: 900, glow: 14, maxWidth: w * 0.88 });
-        text(g, 'tap the WORD, not the ink', 0, Math.min(w, h) * 0.16, Math.max(11, Math.min(w, h) * 0.045), 'rgba(255,255,255,0.45)', { weight: 600, maxWidth: w * 0.9 });
+        text(g, 'tap the WORD, not the ink', 0, Math.min(w, h) * 0.16, Math.max(11, Math.min(w, h) * 0.045), 'rgba(34,25,43,0.45)', { weight: 600, maxWidth: w * 0.9 });
       },
       options: opts.map((i) => COLORS[i][1]),
       correct: 0,

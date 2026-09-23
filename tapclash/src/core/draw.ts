@@ -1,8 +1,14 @@
-export const FONT = '"Rubik", system-ui, -apple-system, "Segoe UI", sans-serif';
+import { INK } from '../theme';
 
+export const FONT = '"Fredoka", "Lilita One", system-ui, -apple-system, "Segoe UI", sans-serif';
+export const DISPLAY = '"Lilita One", "Fredoka", system-ui, sans-serif';
+
+/** Weight 900 selects the chunky display face; anything lighter is the rounded body face. */
 export function font(size: number, weight = 800): string {
-  return `${weight} ${Math.round(size)}px ${FONT}`;
+  return weight >= 900 ? `${Math.round(size)}px ${DISPLAY}` : `${Math.min(700, weight)} ${Math.round(size)}px ${FONT}`;
 }
+
+const isInk = (c: string) => c === INK || c.startsWith('rgba(34,25,43');
 
 const rgbaCache = new Map<string, string>();
 export function rgba(hex: string, a: number): string {
@@ -21,11 +27,16 @@ export interface TextOpts {
   weight?: number;
   align?: CanvasTextAlign;
   baseline?: CanvasTextBaseline;
+  /** Legacy name: any value turns on the sticker look (ink outline + hard drop shadow). */
   glow?: number;
   alpha?: number;
   maxWidth?: number;
 }
 
+/**
+ * Coloured text always gets an ink outline so it reads on paper; `glow`
+ * adds the chunky offset shadow used for headlines.
+ */
 export function text(
   g: CanvasRenderingContext2D,
   s: string,
@@ -37,23 +48,62 @@ export function text(
 ): void {
   g.save();
   let sz = size;
-  g.font = font(sz, o.weight ?? 800);
+  const weight = o.weight ?? 800;
+  g.font = font(sz, weight);
   if (o.maxWidth) {
     const w = g.measureText(s).width;
     if (w > o.maxWidth) {
       sz = (sz * o.maxWidth) / w;
-      g.font = font(sz, o.weight ?? 800);
+      g.font = font(sz, weight);
     }
   }
   g.textAlign = o.align ?? 'center';
   g.textBaseline = o.baseline ?? 'middle';
   g.globalAlpha *= o.alpha ?? 1;
-  g.fillStyle = color;
-  if (o.glow) {
-    g.shadowColor = color;
-    g.shadowBlur = o.glow;
+  g.lineJoin = 'round';
+  const outline = !isInk(color) && sz >= 13;
+  const lw = Math.max(2.5, sz * 0.16);
+  if (o.glow && outline) {
+    g.fillStyle = INK;
+    g.strokeStyle = INK;
+    g.lineWidth = lw;
+    const d = Math.max(2, sz * 0.07);
+    g.strokeText(s, x, y + d);
+    g.fillText(s, x, y + d);
   }
+  if (outline) {
+    g.strokeStyle = INK;
+    g.lineWidth = lw;
+    g.strokeText(s, x, y);
+  }
+  g.fillStyle = color;
   g.fillText(s, x, y);
+  g.restore();
+}
+
+/** Flat panel with an ink border and a hard offset shadow. */
+export function sticker(
+  g: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number,
+  fill: string,
+  shadow = 4,
+): void {
+  g.save();
+  if (shadow) {
+    roundRect(g, x, y + shadow, w, h, r);
+    g.fillStyle = INK;
+    g.fill();
+  }
+  roundRect(g, x, y, w, h, r);
+  g.fillStyle = fill;
+  g.fill();
+  g.strokeStyle = INK;
+  g.lineWidth = 3;
+  g.stroke();
   g.restore();
 }
 
@@ -86,7 +136,7 @@ export function wrap(g: CanvasRenderingContext2D, s: string, size: number, maxW:
   return lines;
 }
 
-/** Small rounded pill label, drawn centred at (x, y). */
+/** Small sticker label, drawn centred at (x, y). */
 export function pill(
   g: CanvasRenderingContext2D,
   label: string,
@@ -97,21 +147,12 @@ export function pill(
   filled = true,
 ): void {
   g.save();
-  g.font = font(size, 800);
+  g.font = font(size, 700);
   const w = g.measureText(label).width + size * 1.6;
   const h = size * 2;
-  roundRect(g, x - w / 2, y - h / 2, w, h, h / 2);
-  if (filled) {
-    g.fillStyle = color;
-    g.fill();
-  } else {
-    g.fillStyle = 'rgba(11,11,20,0.55)';
-    g.fill();
-    g.strokeStyle = color;
-    g.lineWidth = 1.5;
-    g.stroke();
-  }
-  g.fillStyle = filled ? '#0B0B14' : color;
+  sticker(g, x - w / 2, y - h / 2, w, h, h / 2, filled ? color : '#FFF8EC', filled ? 3 : 0);
+  g.fillStyle = INK;
+  g.globalAlpha *= filled ? 1 : 0.6;
   g.textAlign = 'center';
   g.textBaseline = 'middle';
   g.fillText(label, x, y + 1);
@@ -123,22 +164,30 @@ export function pips(g: CanvasRenderingContext2D, x: number, y: number, n: numbe
   const gap = r * 3;
   const x0 = x - ((n - 1) * gap) / 2;
   g.save();
+  g.strokeStyle = INK;
+  g.lineWidth = Math.max(1.5, r * 0.45);
   for (let i = 0; i < n; i++) {
     g.beginPath();
     g.arc(x0 + i * gap, y, r, 0, Math.PI * 2);
-    if (i < filled) {
-      g.fillStyle = color;
-      g.shadowColor = color;
-      g.shadowBlur = 8;
-      g.fill();
-      g.shadowBlur = 0;
-    } else {
-      g.strokeStyle = rgba(color, 0.45);
-      g.lineWidth = 1.5;
-      g.stroke();
-    }
+    g.fillStyle = i < filled ? color : 'rgba(255,255,255,0.6)';
+    g.fill();
+    g.stroke();
   }
   g.restore();
+}
+
+const tintCache = new Map<string, string>();
+/** Mix a hex colour towards white: k = 0 keeps it, k = 1 is white. Opaque, so it never goes muddy on paper. */
+export function tint(hex: string, k: number): string {
+  const key = hex + k;
+  let v = tintCache.get(key);
+  if (!v) {
+    const n = parseInt(hex.slice(1), 16);
+    const mix = (x: number) => Math.round(x + (255 - x) * k);
+    v = `rgb(${mix((n >> 16) & 255)},${mix((n >> 8) & 255)},${mix(n & 255)})`;
+    tintCache.set(key, v);
+  }
+  return v;
 }
 
 export const clamp = (v: number, a: number, b: number): number => (v < a ? a : v > b ? b : v);
@@ -172,9 +221,10 @@ export function drawCrown(g: CanvasRenderingContext2D, x: number, y: number, s: 
   g.lineTo(s, s * 0.45);
   g.closePath();
   g.fillStyle = color;
-  g.shadowColor = color;
-  g.shadowBlur = 20;
   g.fill();
+  g.strokeStyle = INK;
+  g.lineWidth = Math.max(2, s * 0.14);
+  g.lineJoin = 'round';
+  g.stroke();
   g.restore();
 }
-

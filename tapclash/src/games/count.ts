@@ -1,4 +1,5 @@
 import { rand, shuffle, text } from '../core/draw';
+import { INK } from '../theme';
 import { COLORS, createQuiz } from './quiz';
 import type { GameModule } from './types';
 
@@ -38,25 +39,26 @@ export function createQuickCount(): GameModule {
           const bw = w * 0.42;
           const bh = h * 0.11;
           const r = Math.max(5, m * 0.028);
-          text(g, 'COUNT', -m * 0.04, -bh - 18, 13, 'rgba(255,255,255,0.75)', { weight: 900 });
+          text(g, 'COUNT', -m * 0.04, -bh - 18, 13, 'rgba(34,25,43,0.75)', { weight: 900 });
           g.fillStyle = col;
           g.beginPath();
           g.arc(m * 0.1, -bh - 18, 7, 0, Math.PI * 2);
           g.fill();
           for (const p of pts) {
             g.fillStyle = COLORS[p.k][1];
+            g.strokeStyle = INK;
+            g.lineWidth = 2;
             g.beginPath();
             g.arc(p.x * bw, p.y * bh, r, 0, Math.PI * 2);
             g.fill();
+            g.stroke();
           }
-          g.fillStyle = 'rgba(255,255,255,0.5)';
+          g.fillStyle = 'rgba(34,25,43,0.5)';
           g.fillRect(-bw, bh + 14, bw * 2 * (1 - t / SHOW), 3);
         } else {
           text(g, 'HOW MANY', -m * 0.07, 0, m * 0.09, '#fff', { weight: 900 });
           g.save();
           g.fillStyle = col;
-          g.shadowColor = col;
-          g.shadowBlur = 16;
           g.beginPath();
           g.arc(m * 0.26, 0, m * 0.05, 0, Math.PI * 2);
           g.fill();

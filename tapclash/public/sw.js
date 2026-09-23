@@ -1,5 +1,5 @@
 // Offline support: serve from cache first, refresh the cache in the background.
-const CACHE = 'tapclash-v1';
+const CACHE = 'tapclash-v2';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./', 'index.html', 'icon.svg', 'manifest.webmanifest'])));

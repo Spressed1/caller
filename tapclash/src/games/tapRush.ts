@@ -1,8 +1,9 @@
 import { sfx } from '../core/audio';
 import { buzz } from '../core/haptics';
+import { critter } from '../core/assets';
 import { drawCrown, pill, rgba, text } from '../core/draw';
 import { withZone } from '../core/zones';
-import { PLAYER_COLORS, PLAYER_NAMES } from '../theme';
+import { INK, PLAYER_COLORS, PLAYER_NAMES } from '../theme';
 import { scoreRanking, type GameContext, type GameModule } from './types';
 
 const TARGET = 50;
@@ -58,13 +59,12 @@ export function createTapRush(): GameModule {
           g.fillRect(-hw, top, z.w, hh - top);
           // Leading edge of the fill.
           g.fillStyle = col;
-          g.shadowColor = col;
-          g.shadowBlur = 16;
-          g.fillRect(-hw, top - 2, z.w, 3);
-          g.shadowBlur = 0;
+          g.fillRect(-hw, top - 3, z.w, 6);
+          g.fillStyle = INK;
+          g.fillRect(-hw, top - 4, z.w, 2);
           // Finish line.
           g.setLineDash([8, 8]);
-          g.strokeStyle = 'rgba(255,255,255,0.25)';
+          g.strokeStyle = 'rgba(34,25,43,0.25)';
           g.lineWidth = 2;
           g.beginPath();
           g.moveTo(-hw + 10, -hh + 3);
@@ -78,11 +78,15 @@ export function createTapRush(): GameModule {
           g.scale(s, s);
           text(g, String(count[p]), 0, 0, m * 0.36, '#fff', { weight: 900, glow: 20 + pulse[p] * 20 });
           g.restore();
-          text(g, `/ ${TARGET}`, 0, m * 0.25, m * 0.07, 'rgba(255,255,255,0.55)', { weight: 700 });
+          text(g, `/ ${TARGET}`, 0, m * 0.25, m * 0.07, 'rgba(34,25,43,0.55)', { weight: 700 });
           if (count[p] === 0) {
             text(g, 'TAP TAP TAP!', 0, -m * 0.3, m * 0.08, rgba(col, 0.7 + Math.sin(performance.now() / 150) * 0.3), { weight: 900 });
           }
-          if (lead > 0 && count[p] === lead) drawCrown(g, 0, -m * 0.3, m * 0.07, '#FDE68A');
+          const cs = Math.min(m * 0.26, 90);
+          const cy = Math.max(-hh + cs * 0.55, top - cs * 0.42);
+          const leading = lead > 0 && count[p] === lead;
+          critter(g, p, -hw * 0.55, cy, cs, leading ? 'happy' : count[p] > 0 ? 'idle' : 'worried', 0, 1 + pulse[p] * 0.25);
+          if (leading) drawCrown(g, -hw * 0.55, cy - cs * 0.5, cs * 0.18, '#FFC933');
           pill(g, PLAYER_NAMES[p], 0, hh - 24, col, 12);
         });
       }

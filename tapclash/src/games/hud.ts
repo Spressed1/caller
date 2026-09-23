@@ -1,20 +1,32 @@
+import { critter, type Mood } from '../core/assets';
 import { pill, pips, rgba } from '../core/draw';
 import { withZone, type Zone } from '../core/zones';
-import { PLAYER_COLORS, PLAYER_NAMES } from '../theme';
+import { INK, PLAYER_COLORS, PLAYER_NAMES } from '../theme';
 
-/** Player tag at the edge of the zone nearest its player, with optional lives. */
-export function edgeTag(g: CanvasRenderingContext2D, z: Zone, opts: { lives?: number; max?: number; out?: boolean } = {}): void {
+/** Mascot + name tag at the edge of the zone nearest its player, with optional lives. */
+export function edgeTag(
+  g: CanvasRenderingContext2D,
+  z: Zone,
+  opts: { lives?: number; max?: number; out?: boolean; mood?: Mood } = {},
+): void {
   const c = PLAYER_COLORS[z.player];
   withZone(g, z, () => {
     const y = z.h / 2 - 24;
-    if (opts.out) {
-      pill(g, `${PLAYER_NAMES[z.player]} · OUT`, 0, y, rgba(c, 0.5), 12, false);
-      return;
-    }
-    if (opts.max) {
-      pill(g, PLAYER_NAMES[z.player], -opts.max * 7 - 18, y, c, 12);
-      pips(g, 18, y, opts.max, opts.lives ?? 0, c, 5);
-    } else pill(g, PLAYER_NAMES[z.player], 0, y, c, 12);
+    const mood: Mood = opts.mood ?? (opts.out ? 'ko' : 'idle');
+    const label = opts.out ? `${PLAYER_NAMES[z.player]} · OUT` : PLAYER_NAMES[z.player];
+    g.save();
+    g.font = '700 12px "Fredoka", system-ui, sans-serif';
+    const tw = g.measureText(label).width + 20;
+    g.restore();
+    const lifeW = opts.max && !opts.out ? opts.max * 15 + 8 : 0;
+    const total = 34 + tw + lifeW;
+    const x0 = -total / 2;
+    g.save();
+    if (opts.out) g.globalAlpha = 0.65;
+    critter(g, z.player, x0 + 16, y - 4, 38, mood);
+    pill(g, label, x0 + 34 + tw / 2, y, opts.out ? '#E9DCC6' : c, 12);
+    if (lifeW) pips(g, x0 + 34 + tw + 8 + (opts.max! * 15) / 2 - 7, y, opts.max!, opts.lives ?? 0, c, 5);
+    g.restore();
   });
 }
 
@@ -28,7 +40,7 @@ export function zoneTints(g: CanvasRenderingContext2D, zones: Zone[], alpha = 0.
       z.cx,
       z.cy - (Math.cos(z.angle) * z.h) / 2,
     );
-    grad.addColorStop(0, rgba(c, alpha * 2.2));
+    grad.addColorStop(0, rgba(c, alpha * 4));
     grad.addColorStop(1, rgba(c, 0));
     g.fillStyle = grad;
     g.fillRect(z.x, z.y, z.w, z.h);
@@ -66,16 +78,19 @@ export function stickMove(s: Stick, x: number, y: number): void {
 export function drawStick(g: CanvasRenderingContext2D, s: Stick, color: string): void {
   if (s.id === null) return;
   g.save();
-  g.strokeStyle = rgba(color, 0.35);
-  g.fillStyle = rgba(color, 0.08);
-  g.lineWidth = 2;
+  g.strokeStyle = INK;
+  g.lineWidth = 2.5;
+  g.setLineDash([6, 6]);
+  g.fillStyle = rgba(color, 0.14);
   g.beginPath();
   g.arc(s.ox, s.oy, STICK_RADIUS, 0, Math.PI * 2);
   g.fill();
   g.stroke();
-  g.fillStyle = rgba(color, 0.55);
+  g.setLineDash([]);
+  g.fillStyle = color;
   g.beginPath();
-  g.arc(s.ox + s.dx * STICK_RADIUS, s.oy + s.dy * STICK_RADIUS, 22, 0, Math.PI * 2);
+  g.arc(s.ox + s.dx * STICK_RADIUS, s.oy + s.dy * STICK_RADIUS, 20, 0, Math.PI * 2);
   g.fill();
+  g.stroke();
   g.restore();
 }

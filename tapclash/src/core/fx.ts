@@ -1,7 +1,7 @@
-import { PLAYER_COLORS } from '../theme';
+import { INK, PINK, PLAYER_COLORS } from '../theme';
 
 const MAX = 900;
-const CONFETTI = [...PLAYER_COLORS, '#FFFFFF', '#FDE68A'];
+const CONFETTI = [...PLAYER_COLORS, PINK, '#FFFFFF', '#8B7CF6'];
 
 /** Pooled particles, impact rings and screen shake. No per-frame allocation. */
 export class Fx {
@@ -113,21 +113,25 @@ export class Fx {
       const e = 1 - Math.pow(1 - r.t, 3);
       g.globalAlpha = 1 - r.t;
       g.strokeStyle = r.color;
-      g.lineWidth = 3 * (1 - r.t) + 1;
+      g.lineWidth = 5 * (1 - r.t) + 1.5;
       g.beginPath();
       g.arc(r.x, r.y, r.max * e, 0, Math.PI * 2);
       g.stroke();
     }
-    g.globalCompositeOperation = 'lighter';
+    // Sparks: flat dots with a thin ink rim so they read on paper.
+    g.strokeStyle = INK;
+    g.lineWidth = 1.2;
     for (let i = 0; i < MAX; i++) {
       if (this.life[i] <= 0 || this.kind[i] !== 0) continue;
       const t = this.life[i] / this.max[i];
-      g.globalAlpha = t;
+      g.globalAlpha = Math.min(1, t * 1.6);
       g.fillStyle = this.color[i];
-      const s = this.size[i] * (0.4 + t * 0.6);
-      g.fillRect(this.x[i] - s, this.y[i] - s, s * 2, s * 2);
+      const s = this.size[i] * (0.5 + t * 0.7);
+      g.beginPath();
+      g.arc(this.x[i], this.y[i], s, 0, Math.PI * 2);
+      g.fill();
+      if (s > 2.5) g.stroke();
     }
-    g.globalCompositeOperation = 'source-over';
     for (let i = 0; i < MAX; i++) {
       if (this.life[i] <= 0 || this.kind[i] !== 1) continue;
       const t = this.life[i] / this.max[i];

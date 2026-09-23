@@ -1,7 +1,8 @@
 import { sfx } from '../core/audio';
 import { buzz } from '../core/haptics';
-import { rgba, roundRect } from '../core/draw';
-import { PLAYER_COLORS } from '../theme';
+import { critter } from '../core/assets';
+import { roundRect } from '../core/draw';
+import { INK, PLAYER_COLORS, PLAYER_DARK } from '../theme';
 import { drawStick, edgeTag, newStick, stickMove, zoneTints, type Stick } from './hud';
 import { eliminationRanking, type GameContext, type GameModule } from './types';
 
@@ -212,30 +213,31 @@ export function createTanks(): GameModule {
     },
     render(g) {
       zoneTints(g, c.zones, 0.04);
-      g.strokeStyle = 'rgba(192,132,252,0.55)';
-      g.lineWidth = 2;
+      g.strokeStyle = INK;
+      g.lineWidth = 3;
       g.strokeRect(pad, pad, c.W - pad * 2, c.H - pad * 2);
       for (const r of walls) {
         g.save();
-        roundRect(g, r.x, r.y, r.w, r.h, 6);
-        g.fillStyle = '#1e1b3a';
+        roundRect(g, r.x, r.y + 4, r.w, r.h, 6);
+        g.fillStyle = INK;
         g.fill();
-        g.strokeStyle = 'rgba(192,132,252,0.7)';
-        g.shadowColor = '#C084FC';
-        g.shadowBlur = 12;
-        g.lineWidth = 2;
+        roundRect(g, r.x, r.y, r.w, r.h, 6);
+        g.fillStyle = '#E8CFA8';
+        g.fill();
+        g.strokeStyle = INK;
+        g.lineWidth = 3;
         g.stroke();
         g.restore();
       }
       for (const b of bullets) {
-        const col = PLAYER_COLORS[b.owner];
         g.save();
-        g.fillStyle = '#fff';
-        g.shadowColor = col;
-        g.shadowBlur = 12;
+        g.fillStyle = PLAYER_COLORS[b.owner];
+        g.strokeStyle = INK;
+        g.lineWidth = 2.5;
         g.beginPath();
-        g.arc(b.x, b.y, br, 0, Math.PI * 2);
+        g.arc(b.x, b.y, br + 1.5, 0, Math.PI * 2);
         g.fill();
+        g.stroke();
         g.restore();
       }
       tanks.forEach((tk, p) => {
@@ -244,25 +246,30 @@ export function createTanks(): GameModule {
         g.save();
         g.translate(tk.x, tk.y);
         g.rotate(tk.a);
-        g.shadowColor = col;
-        g.shadowBlur = 16;
-        roundRect(g, -tr, -tr * 0.85, tr * 2, tr * 1.7, tr * 0.4);
-        g.fillStyle = tk.flash > 0 ? '#fff' : rgba(col, 0.9);
+        g.strokeStyle = INK;
+        g.lineWidth = 3;
+        g.lineJoin = 'round';
+        // treads
+        roundRect(g, -tr * 1.05, -tr * 0.95, tr * 2.1, tr * 0.42, tr * 0.2);
+        g.fillStyle = '#3A3A4A';
         g.fill();
-        g.shadowBlur = 0;
-        g.fillStyle = 'rgba(11,11,20,0.55)';
-        g.fillRect(-tr, -tr * 0.85, tr * 2, tr * 0.3);
-        g.fillRect(-tr, tr * 0.55, tr * 2, tr * 0.3);
-        g.fillStyle = '#fff';
-        g.fillRect(0, -tr * 0.18, tr * 1.6, tr * 0.36);
-        g.beginPath();
-        g.arc(0, 0, tr * 0.45, 0, Math.PI * 2);
-        g.fillStyle = rgba(col, 1);
+        g.stroke();
+        roundRect(g, -tr * 1.05, tr * 0.53, tr * 2.1, tr * 0.42, tr * 0.2);
         g.fill();
-        g.strokeStyle = '#fff';
-        g.lineWidth = 2;
+        g.stroke();
+        // hull
+        roundRect(g, -tr * 0.9, -tr * 0.6, tr * 1.8, tr * 1.2, tr * 0.35);
+        g.fillStyle = tk.flash > 0 ? '#fff' : PLAYER_DARK[p];
+        g.fill();
+        g.stroke();
+        // barrel
+        roundRect(g, 0, -tr * 0.16, tr * 1.65, tr * 0.32, tr * 0.12);
+        g.fillStyle = col;
+        g.fill();
         g.stroke();
         g.restore();
+        const z = c.zones[p];
+        critter(g, p, tk.x, tk.y - tr * 0.15, tr * 1.7, tk.flash > 0 ? 'ko' : tk.hp === 1 ? 'worried' : 'idle', z.angle);
         drawStick(g, tk.stick, col);
       });
       for (const z of c.zones) {

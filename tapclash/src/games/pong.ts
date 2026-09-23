@@ -2,7 +2,7 @@ import { sfx } from '../core/audio';
 import { buzz } from '../core/haptics';
 import { clamp, rand, rgba } from '../core/draw';
 import { toLocal } from '../core/zones';
-import { PLAYER_COLORS } from '../theme';
+import { INK, PLAYER_COLORS } from '../theme';
 import { edgeTag, zoneTints } from './hud';
 import { eliminationRanking, type GameContext, type GameModule } from './types';
 
@@ -170,13 +170,16 @@ export function createPong(): GameModule {
     render(g) {
       zoneTints(g, c.zones, 0.04);
       const bg = g.createRadialGradient(cx, cy, 0, cx, cy, R);
-      bg.addColorStop(0, '#191830');
-      bg.addColorStop(1, '#0f0e1c');
+      bg.addColorStop(0, '#FFF8EC');
+      bg.addColorStop(1, '#F2D7AE');
       g.fillStyle = bg;
       g.beginPath();
       g.arc(cx, cy, R, 0, TAU);
       g.fill();
-      g.strokeStyle = 'rgba(255,255,255,0.05)';
+      g.strokeStyle = INK;
+      g.lineWidth = 3;
+      g.stroke();
+      g.strokeStyle = 'rgba(34,25,43,0.12)';
       g.lineWidth = 1;
       g.beginPath();
       g.arc(cx, cy, R * 0.5, 0, TAU);
@@ -187,18 +190,21 @@ export function createPong(): GameModule {
         g.save();
         g.lineCap = 'round';
         // Goal arc
-        g.strokeStyle = a.lives > 0 ? rgba(col, 0.35) : 'rgba(255,255,255,0.35)';
-        g.lineWidth = a.lives > 0 ? 3 : 6;
+        g.strokeStyle = a.lives > 0 ? rgba(col, 0.55) : INK;
+        g.lineWidth = a.lives > 0 ? 6 : 10;
+        if (a.lives <= 0) g.setLineDash([10, 8]);
         g.beginPath();
-        g.arc(cx, cy, R, a.start + 0.03, a.start + a.span - 0.03);
+        g.arc(cx, cy, R, a.start + 0.04, a.start + a.span - 0.04);
         g.stroke();
+        g.setLineDash([]);
         if (a.lives > 0) {
-          g.strokeStyle = col;
-          g.shadowColor = col;
-          g.shadowBlur = 20;
-          g.lineWidth = 10;
+          g.strokeStyle = INK;
+          g.lineWidth = 16;
           g.beginPath();
           g.arc(cx, cy, R - 10, a.paddle - half, a.paddle + half);
+          g.stroke();
+          g.strokeStyle = col;
+          g.lineWidth = 10;
           g.stroke();
         }
         g.restore();
@@ -208,18 +214,19 @@ export function createPong(): GameModule {
       const blink = serve > 0 && Math.floor(serve * 10) % 2 === 0;
       if (!blink) {
         trail.forEach((pt, i) => {
-          g.fillStyle = `rgba(255,255,255,${(i / trail.length) * 0.25})`;
+          g.fillStyle = `rgba(34,25,43,${(i / trail.length) * 0.25})`;
           g.beginPath();
           g.arc(pt.x, pt.y, br * (i / trail.length), 0, TAU);
           g.fill();
         });
         g.save();
         g.fillStyle = '#fff';
-        g.shadowColor = '#fff';
-        g.shadowBlur = 20;
+        g.strokeStyle = INK;
+        g.lineWidth = 3;
         g.beginPath();
         g.arc(bx, by, br, 0, TAU);
         g.fill();
+        g.stroke();
         g.restore();
       }
       for (const z of c.zones) {

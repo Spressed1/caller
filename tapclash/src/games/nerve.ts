@@ -1,8 +1,8 @@
 import { sfx } from '../core/audio';
 import { buzz } from '../core/haptics';
-import { clamp, rgba, text } from '../core/draw';
+import { clamp, text, tint } from '../core/draw';
 import { withZone } from '../core/zones';
-import { DANGER, PLAYER_COLORS } from '../theme';
+import { DANGER, INK, PAPER, PLAYER_COLORS } from '../theme';
 import { edgeTag } from './hud';
 import { scoreRanking, type GameContext, type GameModule } from './types';
 
@@ -119,18 +119,18 @@ export function createNerve(): GameModule {
         const col = PLAYER_COLORS[p];
         const st = status[p];
         const grad = g.createLinearGradient(z.cx, z.cy - (Math.cos(z.angle) * z.h) / 2, z.cx, z.cy + (Math.cos(z.angle) * z.h) / 2);
-        grad.addColorStop(0, '#0d0d18');
+        grad.addColorStop(0, PAPER);
         const hot = phase === 'climb' && st === 'in';
-        grad.addColorStop(1, hot ? `rgba(${Math.round(80 + heat * 150)},${Math.round(30 - heat * 20)},${Math.round(60 - heat * 30)},1)` : rgba(col, 0.18));
+        grad.addColorStop(1, hot ? `rgb(255,${Math.round(214 - heat * 130)},${Math.round(190 - heat * 120)})` : tint(col, 0.72));
         g.fillStyle = grad;
         g.fillRect(z.x, z.y, z.w, z.h);
         withZone(g, z, () => {
           const m = Math.min(z.w, z.h);
-          text(g, `ROUND ${Math.min(round + 1, ROUNDS)}/${ROUNDS}  ·  ${total[p].toFixed(2)} pts`, 0, -z.h / 2 + 26, 12, 'rgba(255,255,255,0.55)', { weight: 700 });
+          text(g, `ROUND ${Math.min(round + 1, ROUNDS)}/${ROUNDS}  ·  ${total[p].toFixed(2)} pts`, 0, -z.h / 2 + 26, 12, 'rgba(34,25,43,0.55)', { weight: 700 });
           if (phase === 'arm') {
             const h = held[p] > 0;
             text(g, h ? 'HOLDING' : 'HOLD', 0, -m * 0.06, m * 0.2, h ? col : '#fff', { weight: 900, glow: h ? 24 : 0 });
-            text(g, h ? 'keep holding… let go to bank' : 'put a finger down and keep it there', 0, m * 0.12, Math.max(11, m * 0.045), 'rgba(255,255,255,0.6)', { weight: 600, maxWidth: z.w * 0.9 });
+            text(g, h ? 'keep holding… let go to bank' : 'put a finger down and keep it there', 0, m * 0.12, Math.max(11, m * 0.045), 'rgba(34,25,43,0.6)', { weight: 600, maxWidth: z.w * 0.9 });
           } else {
             const label = `${mult.toFixed(2)}x`;
             if (st === 'in') {
@@ -139,21 +139,24 @@ export function createNerve(): GameModule {
               g.scale(s, s);
               text(g, label, 0, 0, m * 0.25, '#fff', { weight: 900, glow: 20 + heat * 30, maxWidth: z.w * 0.9 });
               g.restore();
-              text(g, 'LET GO TO BANK', 0, m * 0.2, Math.max(11, m * 0.05), 'rgba(255,255,255,0.7)', { weight: 800 });
+              text(g, 'LET GO TO BANK', 0, m * 0.2, Math.max(11, m * 0.05), 'rgba(34,25,43,0.7)', { weight: 800 });
             } else if (st === 'banked') {
               text(g, `+${banked[p].toFixed(2)}`, 0, -m * 0.04, m * 0.2, col, { weight: 900, glow: 20, maxWidth: z.w * 0.9 });
-              text(g, phase === 'climb' ? `still climbing: ${label}` : `crashed at ${crash.toFixed(2)}x`, 0, m * 0.14, Math.max(11, m * 0.05), 'rgba(255,255,255,0.6)', { weight: 700 });
+              text(g, phase === 'climb' ? `still climbing: ${label}` : `crashed at ${crash.toFixed(2)}x`, 0, m * 0.14, Math.max(11, m * 0.05), 'rgba(34,25,43,0.6)', { weight: 700 });
             } else if (st === 'bust') {
               text(g, 'BUST!', 0, -m * 0.04, m * 0.24, DANGER, { weight: 900, glow: 24 });
-              text(g, `crashed at ${crash.toFixed(2)}x`, 0, m * 0.14, Math.max(11, m * 0.05), 'rgba(255,255,255,0.6)', { weight: 700 });
+              text(g, `crashed at ${crash.toFixed(2)}x`, 0, m * 0.14, Math.max(11, m * 0.05), 'rgba(34,25,43,0.6)', { weight: 700 });
             } else {
-              text(g, 'SITTING OUT', 0, 0, m * 0.09, 'rgba(255,255,255,0.4)', { weight: 900 });
+              text(g, 'SITTING OUT', 0, 0, m * 0.09, 'rgba(34,25,43,0.4)', { weight: 900 });
             }
           }
         });
-        edgeTag(g, z);
+        edgeTag(g, z, {
+          mood:
+            phase === 'arm' ? (held[p] > 0 ? 'happy' : 'idle') : st === 'in' ? (heat > 0.25 ? 'worried' : 'idle') : st === 'banked' ? 'happy' : st === 'bust' ? 'ko' : 'idle',
+        });
       }
-      g.strokeStyle = 'rgba(0,0,0,0.6)';
+      g.strokeStyle = INK;
       g.lineWidth = 3;
       for (const z of c.zones) g.strokeRect(z.x, z.y, z.w, z.h);
     },

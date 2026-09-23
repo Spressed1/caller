@@ -1,8 +1,9 @@
 import { sfx } from '../core/audio';
 import { buzz } from '../core/haptics';
+import { critter, groundShadow } from '../core/assets';
 import { pill, rand, rgba, text } from '../core/draw';
 import { withZone } from '../core/zones';
-import { PLAYER_COLORS, PLAYER_NAMES } from '../theme';
+import { INK, PLAYER_COLORS, PLAYER_NAMES } from '../theme';
 import { drawStick, newStick, stickMove, zoneTints, type Stick } from './hud';
 import { scoreRanking, type GameContext, type GameModule } from './types';
 
@@ -159,7 +160,7 @@ export function createPaint(): GameModule {
       zoneTints(g, c.zones, 0.03);
       const pad = cell * 0.08;
       for (let p = 0; p < c.n; p++) {
-        g.fillStyle = rgba(PLAYER_COLORS[p], 0.62);
+        g.fillStyle = rgba(PLAYER_COLORS[p], 0.75);
         for (let k = 0; k < owner.length; k++) {
           if (owner[k] !== p) continue;
           const i = k % cols;
@@ -180,26 +181,19 @@ export function createPaint(): GameModule {
           g.lineTo(Math.cos(a) * r, Math.sin(a) * r);
         }
         g.closePath();
-        g.fillStyle = '#FDE68A';
-        g.shadowColor = '#FDE68A';
-        g.shadowBlur = 24;
+        g.fillStyle = '#FFC933';
         g.fill();
+        g.strokeStyle = INK;
+        g.lineWidth = 3;
+        g.lineJoin = 'round';
+        g.stroke();
         g.restore();
       }
       brushes.forEach((b, p) => {
         const col = PLAYER_COLORS[p];
-        g.save();
-        g.fillStyle = '#fff';
-        g.shadowColor = col;
-        g.shadowBlur = 22;
-        g.beginPath();
-        g.arc(b.x, b.y, br, 0, Math.PI * 2);
-        g.fill();
-        g.fillStyle = col;
-        g.beginPath();
-        g.arc(b.x, b.y, br * 0.6, 0, Math.PI * 2);
-        g.fill();
-        g.restore();
+        const moving = Math.hypot(b.stick.dx, b.stick.dy) > 0.2;
+        groundShadow(g, b.x, b.y + br * 0.9, br * 2);
+        critter(g, p, b.x, b.y, br * 2.6, Math.hypot(b.kx, b.ky) > c.S * 0.3 ? 'worried' : moving ? 'happy' : 'idle', b.stick.dx * 0.25);
         drawStick(g, b.stick, col);
       });
       const totalCells = owner.length;
@@ -212,7 +206,7 @@ export function createPaint(): GameModule {
           pill(g, `${PLAYER_NAMES[p]} · ${pct}%${counts[p] === lead && lead > 0 ? ' ★' : ''}`, 0, y, PLAYER_COLORS[p], 12);
           const secs = Math.max(0, Math.ceil(left));
           const urgent = secs <= 5;
-          text(g, `${secs}`, 0, y - 36, urgent ? 30 : 18, urgent ? '#FB7185' : 'rgba(255,255,255,0.7)', { weight: 900, glow: urgent ? 16 : 0 });
+          text(g, `${secs}`, 0, y - 36, urgent ? 30 : 18, urgent ? '#FB7185' : 'rgba(34,25,43,0.7)', { weight: 900, glow: urgent ? 16 : 0 });
         });
       }
     },

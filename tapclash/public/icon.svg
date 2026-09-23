@@ -1,15 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#22D3EE"/>
-      <stop offset=".5" stop-color="#818CF8"/>
-      <stop offset="1" stop-color="#F472B6"/>
-    </linearGradient>
-  </defs>
-  <rect width="512" height="512" rx="112" fill="#0B0B14"/>
-  <circle cx="176" cy="176" r="52" fill="#22D3EE"/>
-  <circle cx="336" cy="176" r="52" fill="#F472B6"/>
-  <circle cx="176" cy="336" r="52" fill="#A3E635"/>
-  <circle cx="336" cy="336" r="52" fill="#FBBF24"/>
-  <path d="M290 110 214 262h60l-26 140 108-176h-64z" fill="#fff" stroke="#0B0B14" stroke-width="16" stroke-linejoin="round"/>
+  <rect width="512" height="512" rx="112" fill="#FFC933"/>
+  <circle cx="420" cy="92" r="40" fill="#FF7EB6"/><circle cx="84" cy="440" r="28" fill="#2F7BFF"/>
+  <g transform="translate(76 96) scale(3)" stroke="#22192B" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+    <ellipse cx="42" cy="108" rx="11" ry="6" fill="#C8341C"/><ellipse cx="78" cy="108" rx="11" ry="6" fill="#C8341C"/>
+    <path d="M60 28c26 0 46 18 46 42s-20 38-46 38-46-14-46-38 20-42 46-42z" fill="#FF5A3C"/>
+    <path d="M60 30c-4-8-2-16 6-20 2 8 0 14-6 20z" fill="#3A9D5D"/><path d="M60 30c-8-4-16-2-20 4 8 3 14 2 20-4z" fill="#3A9D5D"/>
+    <path d="M39 68q7-10 14 0M67 68q7-10 14 0" fill="none"/>
+    <path d="M48 77h24q-2 16-12 16t-12-16z" fill="#22192B" stroke-width="3"/>
+  </g>
 </svg>

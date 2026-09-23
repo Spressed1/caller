@@ -1,8 +1,9 @@
 import { sfx } from '../core/audio';
 import { buzz } from '../core/haptics';
-import { pips, rand, rgba, text } from '../core/draw';
+import { critter } from '../core/assets';
+import { pips, rand, text, tint } from '../core/draw';
 import { withZone } from '../core/zones';
-import { DANGER, PLAYER_COLORS, PLAYER_NAMES } from '../theme';
+import { DANGER, INK, PAPER_DEEP, PLAYER_COLORS, PLAYER_NAMES } from '../theme';
 import { scoreRanking, type GameContext, type GameModule } from './types';
 
 const TARGET = 3;
@@ -78,17 +79,20 @@ export function createReflex(): GameModule {
         const p = z.player;
         const col = PLAYER_COLORS[p];
         const m = Math.min(z.w, z.h);
-        let bg = '#1a0610';
-        if (state === 'wait') bg = foul[p] ? '#0f0f16' : `rgb(${58 + Math.sin(t * 6) * 10},10,24)`;
-        else if (state === 'go') bg = foul[p] ? '#0f0f16' : '#16a34a';
-        else bg = winner === p ? rgba(col, 0.45) : '#101018';
+        let bg = PAPER_DEEP;
+        if (state === 'wait') bg = foul[p] ? '#E4D6C0' : `rgb(255,${Math.round(196 + Math.sin(t * 6) * 12)},${Math.round(180 + Math.sin(t * 6) * 12)})`;
+        else if (state === 'go') bg = foul[p] ? '#E4D6C0' : '#5BE38E';
+        else bg = winner === p ? tint(col, 0.45) : PAPER_DEEP;
         g.fillStyle = bg;
         g.fillRect(z.x, z.y, z.w, z.h);
         withZone(g, z, () => {
+          const mood = foul[p] ? 'ko' : state === 'go' ? 'happy' : state === 'reveal' ? (winner === p ? 'win' : 'worried') : 'worried';
+          const shake = state === 'wait' && !foul[p] ? Math.sin(t * 40) * 0.03 : 0;
+          critter(g, p, 0, -m * 0.3, Math.min(m * 0.3, 110), mood, shake);
           if (state === 'wait') {
             if (foul[p]) text(g, 'TOO SOON!', 0, 0, m * 0.14, DANGER, { weight: 900, glow: 16, maxWidth: z.w * 0.85 });
-            else text(g, 'WAIT…', 0, 0, m * 0.18, 'rgba(255,255,255,0.85)', { weight: 900 });
-            text(g, 'tap when it turns green', 0, m * 0.15, m * 0.05, 'rgba(255,255,255,0.45)', { weight: 600 });
+            else text(g, 'WAIT…', 0, 0, m * 0.18, 'rgba(34,25,43,0.85)', { weight: 900 });
+            text(g, 'tap when it turns green', 0, m * 0.15, m * 0.05, 'rgba(34,25,43,0.45)', { weight: 600 });
           } else if (state === 'go') {
             if (foul[p]) text(g, 'TOO SOON!', 0, 0, m * 0.14, DANGER, { weight: 900, maxWidth: z.w * 0.85 });
             else text(g, 'TAP!', 0, 0, m * 0.3, '#fff', { weight: 900, glow: 30 });
@@ -98,12 +102,12 @@ export function createReflex(): GameModule {
           } else if (winner >= 0) {
             text(g, `${PLAYER_NAMES[winner]} was faster`, 0, 0, m * 0.07, PLAYER_COLORS[winner], { weight: 800, maxWidth: z.w * 0.85 });
           } else {
-            text(g, 'NO POINT', 0, 0, m * 0.1, 'rgba(255,255,255,0.6)', { weight: 900 });
+            text(g, 'NO POINT', 0, 0, m * 0.1, 'rgba(34,25,43,0.6)', { weight: 900 });
           }
           pips(g, 0, z.h / 2 - 26, TARGET, score[p], col, 7);
         });
       }
-      g.strokeStyle = 'rgba(0,0,0,0.6)';
+      g.strokeStyle = INK;
       g.lineWidth = 3;
       for (const z of c.zones) g.strokeRect(z.x, z.y, z.w, z.h);
     },

@@ -1,7 +1,7 @@
 import { sfx } from '../core/audio';
 import { buzz } from '../core/haptics';
-import { rgba } from '../core/draw';
-import { PLAYER_COLORS } from '../theme';
+import { critter, groundShadow, type Mood } from '../core/assets';
+import { INK, PLAYER_COLORS } from '../theme';
 import { drawStick, edgeTag, newStick, stickMove, zoneTints, type Stick } from './hud';
 import { eliminationRanking, type GameContext, type GameModule } from './types';
 
@@ -174,27 +174,28 @@ export function createSumo(): GameModule {
       // Arena
       const shrinking = t > 6 && R > c.S * 0.2;
       const grad = g.createRadialGradient(cx, cy, 0, cx, cy, R);
-      grad.addColorStop(0, '#1d1b35');
-      grad.addColorStop(1, '#12111f');
+      grad.addColorStop(0, '#FFF8EC');
+      grad.addColorStop(1, '#F2D7AE');
       g.fillStyle = grad;
       g.beginPath();
       g.arc(cx, cy, R, 0, Math.PI * 2);
       g.fill();
-      g.strokeStyle = 'rgba(255,255,255,0.05)';
-      g.lineWidth = 1;
+      g.strokeStyle = 'rgba(34,25,43,0.12)';
+      g.lineWidth = 2;
       for (let k = 1; k <= 3; k++) {
         g.beginPath();
         g.arc(cx, cy, (R * k) / 4, 0, Math.PI * 2);
         g.stroke();
       }
       g.save();
-      const edge = shrinking ? '#F472B6' : '#C084FC';
-      g.strokeStyle = edge;
-      g.shadowColor = edge;
-      g.shadowBlur = 22 + (shrinking ? Math.sin(t * 8) * 8 : 0);
-      g.lineWidth = 5;
+      const edge = shrinking && Math.sin(t * 8) > 0 ? '#FF3B5C' : '#8B7CF6';
+      g.strokeStyle = INK;
+      g.lineWidth = 12;
       g.beginPath();
       g.arc(cx, cy, R, 0, Math.PI * 2);
+      g.stroke();
+      g.strokeStyle = edge;
+      g.lineWidth = 6;
       g.stroke();
       g.restore();
 
@@ -204,31 +205,20 @@ export function createSumo(): GameModule {
         const s = b.fall > 0 ? Math.max(0, 1 - b.fall * 2) : 1;
         const rr = r * s;
         if (rr <= 0) return;
-        g.save();
-        g.fillStyle = 'rgba(0,0,0,0.35)';
-        g.beginPath();
-        g.ellipse(b.x + rr * 0.15, b.y + rr * 0.3, rr, rr * 0.85, 0, 0, Math.PI * 2);
-        g.fill();
-        const bg = g.createRadialGradient(b.x - rr * 0.35, b.y - rr * 0.35, rr * 0.1, b.x, b.y, rr);
-        bg.addColorStop(0, '#ffffff');
-        bg.addColorStop(0.25, col);
-        bg.addColorStop(1, rgba(col, 0.75));
-        g.fillStyle = bg;
-        g.shadowColor = col;
-        g.shadowBlur = 18;
-        g.beginPath();
-        g.arc(b.x, b.y, rr, 0, Math.PI * 2);
-        g.fill();
-        g.shadowBlur = 0;
-        if (b.fall === 0) {
-          // Dash cooldown ring
-          g.strokeStyle = b.dashCd > 0 ? 'rgba(255,255,255,0.25)' : rgba('#ffffff', 0.85);
-          g.lineWidth = 2.5;
+        const edgeDist = Math.hypot(b.x - cx, b.y - cy) / R;
+        const mood: Mood = b.fall > 0 ? 'ko' : b.dashCd > DASH_CD - 0.3 ? 'happy' : edgeDist > 0.75 ? 'worried' : 'idle';
+        if (b.fall === 0) groundShadow(g, b.x, b.y + rr * 0.85, rr * 1.8);
+        critter(g, p, b.x, b.y, rr * 2.5, mood, b.fall * 6 + b.vx / (c.S * 8));
+        if (b.fall === 0 && b.dashCd <= 0) {
+          g.save();
+          g.strokeStyle = col;
+          g.lineWidth = 3;
+          g.setLineDash([4, 5]);
           g.beginPath();
-          g.arc(b.x, b.y, rr + 5, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (1 - b.dashCd / DASH_CD));
+          g.arc(b.x, b.y, rr * 1.4, 0, Math.PI * 2);
           g.stroke();
+          g.restore();
         }
-        g.restore();
         drawStick(g, b.stick, col);
       });
       for (const z of c.zones) edgeTag(g, z, { out: balls[z.player].out || balls[z.player].fall > 0 });
