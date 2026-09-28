@@ -7,13 +7,13 @@ import { INK, PLAYER_COLORS, PLAYER_NAMES } from '../theme';
 export function edgeTag(
   g: CanvasRenderingContext2D,
   z: Zone,
-  opts: { lives?: number; max?: number; out?: boolean; mood?: Mood } = {},
+  opts: { lives?: number; max?: number; out?: boolean; mood?: Mood; label?: string } = {},
 ): void {
   const c = PLAYER_COLORS[z.player];
   withZone(g, z, () => {
     const y = z.h / 2 - 24;
     const mood: Mood = opts.mood ?? (opts.out ? 'ko' : 'idle');
-    const label = opts.out ? `${PLAYER_NAMES[z.player]} · OUT` : PLAYER_NAMES[z.player];
+    const label = opts.out ? `${PLAYER_NAMES[z.player]} · OUT` : opts.label ?? PLAYER_NAMES[z.player];
     g.save();
     g.font = '700 12px "Fredoka", system-ui, sans-serif';
     const tw = g.measureText(label).width + 20;

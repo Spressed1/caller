@@ -1,6 +1,9 @@
+import { createBeat } from './beat';
+import { createBike } from './bike';
 import { createBomb } from './bomb';
 import { createChomp } from './chomp';
 import { createQuickCount } from './count';
+import { createCurl } from './curl';
 import { createMemory } from './memory';
 import { createNerve } from './nerve';
 import { createPaint } from './paint';
@@ -9,15 +12,62 @@ import { createColorCall, createMathDuel } from './quiz';
 import { createReflex } from './reflex';
 import { createSnake } from './snake';
 import { createStack } from './stack';
+import { createSteady } from './steady';
 import { createSumo } from './sumo';
 import { createTanks } from './tanks';
 import { createTapRush } from './tapRush';
+import { createTimer } from './timer';
 import { createTug } from './tug';
 import type { GameDef } from './types';
 import { createWhack } from './whack';
 
 /** `icon` names a file in public/assets/icons. */
 export const GAMES: GameDef[] = [
+  {
+    id: 'bike',
+    name: 'Bike Race',
+    tagline: 'Pace yourself. Then pass them.',
+    howTo: 'Hold PEDAL to speed up, but your legs overheat. Tap JUMP over logs and puddles. Hit ramps fast for air. Same track for everyone.',
+    accent: '#FF5A3C',
+    icon: 'bike',
+    create: createBike,
+  },
+  {
+    id: 'curl',
+    name: 'Curl Clash',
+    tagline: 'Curling, but the stones scream',
+    howTo: 'Drag to aim (longer drag = harder throw), let go to slide your critter at the target. Inner ring 3, middle 2, outer 1. Knock the others out. Two stones each, three ends.',
+    accent: '#2F7BFF',
+    icon: 'curl',
+    create: createCurl,
+  },
+  {
+    id: 'beat',
+    name: 'Beat Drop',
+    tagline: 'Tap to the beat. Or don\'t.',
+    howTo: 'Tap each lane as the notes cross the line. Perfect timing scores big and combos add up. Same song, same notes for everyone.',
+    accent: '#FF7EB6',
+    icon: 'beat',
+    create: createBeat,
+  },
+  {
+    id: 'timer',
+    name: 'Blind Timer',
+    tagline: 'Count in your head. Honestly.',
+    howTo: 'Tap to stop your clock right on the target time. It goes dark after 1.5 seconds. Closest wins 3 points. Three rounds.',
+    accent: '#FFC933',
+    icon: 'timer',
+    create: createTimer,
+  },
+  {
+    id: 'steady',
+    name: 'Steady Hand',
+    tagline: 'Do not let go of me',
+    howTo: 'Keep your finger on your critter as it wanders. It speeds up and shrinks. Most seconds on target wins.',
+    accent: '#2DBE7E',
+    icon: 'steady',
+    create: createSteady,
+  },
   {
     id: 'chomp',
     name: 'Chomp Chomp',

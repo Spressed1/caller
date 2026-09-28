@@ -19,6 +19,11 @@ npm run build    # static build in dist/, deploy anywhere (installable PWA)
 
 | Game | Goal |
 |---|---|
+| Bike Race | Hold PEDAL (legs overheat), tap JUMP over logs and puddles, hit ramps fast; same track for all |
+| Curl Clash | Drag to aim and set power, slide your critter into the rings (3/2/1); 2 stones × 3 ends |
+| Beat Drop | Rhythm game: tap lanes on the beat; one generated song and chart for everyone |
+| Blind Timer | Stop a clock that goes dark after 1.5s on the target time; closest scores; 3 rounds |
+| Steady Hand | Keep your finger on your critter as it wanders, speeds up and shrinks |
 | Chomp Chomp | Tap where you want to lunge and eat candy; gold is worth 3 |
 | Stack Attack | Drop sliding blocks; overhang is chopped; perfect drops streak and regrow |
 | Whack-a-Mole | Same moles for everyone at the same moment: whack moles, grab gold, skip bombs |
@@ -38,6 +43,9 @@ npm run build    # static build in dist/, deploy anywhere (installable PWA)
 | Quick Count | Dots flash for 2s: count the shown colour and pick the number. First to 5 |
 
 Modes: **Quick Play** (pick a game, rematch) and **Tournament** (random games, first to 5 wins).
+
+The newer games are balanced by construction: every seat gets the same track, chart,
+schedule or path, and launch spots are equidistant from shared targets.
 
 ## Structure
 

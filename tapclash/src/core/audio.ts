@@ -73,6 +73,11 @@ class Sfx {
   /** One of four pad notes (Memory Echo). */
   note(i: number): void { this.tone([330, 415, 494, 587][i % 4], 0.3, 'triangle', 0.18); }
   pump(v: number): void { this.tone(200 + v * 60, 0.05, 'sine', 0.06); }
+  kick(): void { this.tone(150, 0.16, 'sine', 0.35, 45); }
+  snare(): void { this.noise(0.14, 0.18, 3800); this.tone(220, 0.06, 'triangle', 0.06, 160); }
+  hat(): void { this.noise(0.03, 0.05, 9000); }
+  bass(i: number): void { this.tone([82, 98, 110, 73][i % 4], 0.22, 'triangle', 0.16); }
+  bell(): void { this.tone(1320, 0.5, 'sine', 0.12); this.tone(1980, 0.3, 'sine', 0.05); }
   win(): void {
     [523, 659, 784, 1047].forEach((f, i) => this.tone(f, 0.22, 'triangle', 0.14, undefined, i * 0.1));
     this.tone(1047, 0.6, 'sine', 0.1, undefined, 0.4);
